@@ -1,0 +1,82 @@
+{
+    "soccer": {
+        "AFC Champions League": [
+            {
+                "event": "Yokohama F. Marinos vs. Shanghai Shenhua",
+                "highlight": "",
+                "homeTeam": "Yokohama F. Marinos",
+                "awayTeam": "Shanghai Shenhua",
+                "sport": "soccer",
+                "eventId": 208122652,
+                "startTime": 1739354400,
+                "full_time_result": {
+                    "home": {
+                        "sportId": 29,
+                        "league": 1708,
+                        "event": 208122652,
+                        "period": 1,
+                        "mkt": 1,
+                        "back": {
+                            "highestOdds": 1.64,
+                            "stakeAtHighestOdds": 1406.25,
+                            "secondHighestOdds": 2.13,
+                            "stakeAt2ndHighestOdds": 300,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        },
+                        "lay": {
+                            "highestOdds": 0,
+                            "stakeAtHighestOdds": 0,
+                            "secondHighestOdds": 0,
+                            "stakeAt2ndHighestOdds": 0,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        }
+                    },
+                    "draw": {
+                        "sportId": 29,
+                        "league": 1708,
+                        "event": 208122652,
+                        "period": 1,
+                        "mkt": 2,
+                        "back": {
+                            "highestOdds": 4.23,
+                            "stakeAtHighestOdds": 900,
+                            "secondHighestOdds": 2.61,
+                            "stakeAt2ndHighestOdds": 300,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        },
+                        "lay": {
+                            "highestOdds": 0,
+                            "stakeAtHighestOdds": 0,
+                            "secondHighestOdds": 0,
+                            "stakeAt2ndHighestOdds": 0,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        }
+                    },
+                    "away": {
+                        "sportId": 29,
+                        "league": 1708,
+                        "event": 208122652,
+                        "period": 1,
+                        "mkt": 3,
+                        "back": {
+                            "highestOdds": 4.44,
+                            "stakeAtHighestOdds": 900,
+                            "secondHighestOdds": 4.54,
+                            "stakeAt2ndHighestOdds": 300,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        },
+                        "lay": {
+                            "highestOdds": 0,
+                            "stakeAtHighestOdds": 0,
+                            "secondHighestOdds": 0,
+                            "stakeAt2ndHighestOdds": 0,
+                            "thirdHighestOdds": 0,
+                            "stakeAt3rdHighestOdds": 0
+                        }
+                    }
+                },
