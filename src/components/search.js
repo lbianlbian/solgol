@@ -11,13 +11,21 @@ import axios from "axios";
 import { styled } from '@mui/material/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 
-
 import AppTheme from './styling/AppTheme';
 import levenshtein from "./utils/levenshtein";
-import GameAccordion from "./gameAccordion";
 
-const URL = "https://script.google.com/macros/s/AKfycbzOHT0zHPAt9m8qO4e65XBCOgCyvL5UlVEN6CpRwVziO0kEDo0OmQskdtWCYsbW2J1uUg/exec?url=http://35.183.47.211/events?sport=soccer";
-const TOP_RESULTS_TO_SHOW = 3;
+const URL = "https://prod.events.api.betdex.com/events";
+const LLM_URL = "https://api.mistral.ai/v1/chat/completions";
+const LLM_AUTH = {Authorization: "Bearer ut3fvNH5z4BBiAq88V07cMAGNLXos48P"};
+const PROMPT = `Based on the user's query, give me a properly formatted JSON object with attributes
+  stake (pointing to user's stake)
+  team1 (all lowercase, one of the teams in the game the user wants to bet on)
+  team2 (all lowercase, the other team in this game)
+  bettingTeam (all lowercase, the team that user is betting on, could also be 'draw')
+  I will call JSON.parse() on the entire response so do not respond with anything else besides the JSON object.
+  Here is the user's query: `;
+const RESP_MAX_TOKENS = 100;
+const EVENTS_TO_DISPLAY = 1;
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -63,21 +71,42 @@ const SearchContainer = styled(Stack)(({ theme }) => ({
 }));
 
 /**
- * calls purebet api for events
- * @returns array of event objects unchanged from api (example shown in pbapi.json)
+ * calls betdex api for soccer events
+ * @returns array of event objects, each with event, homeTeam, awayTeam, and mktPubkey
  */
 async function getEvents(){
   let resp = await axios.get(URL);
   let output = [];
-  for(let league in resp.data.soccer){
-    output = output.concat(resp.data.soccer[league]);
+  for(let sport of resp.data.eventCategories){
+    if(sport.id != "FOOTBALL"){
+      continue;
+    }
+    for(let league of sport.eventGroup){
+      for(let event of league.events){
+        let outputObj = {
+          event: event.eventName,
+          homeTeam: event.participants[0].name,
+          awayTeam: event.participants[1].name
+        };
+        for(let market of event.markets){
+          if(market.marketName == 'Full Time Result'){
+            outputObj.mktPubkey = market.marketAccount;
+          }
+        }
+        output.push(outputObj);
+      }
+    }
   }
   return output;
 }
 
 class LevenshteinSorter{
+  /**
+   * 
+   * @param {object} query contains team1 and team2, all lowercase
+   */
   constructor(query){
-    this.query = query.toLowerCase();
+    this.query = query;
   }
   /**
    * picksk closest levenshtein distance from away team name, home team name, and event name
@@ -86,15 +115,11 @@ class LevenshteinSorter{
    * @returns number
    */
   minLevDist(eventObj){
-    let wordLevDists = [];
-    for(let word of eventObj.event.split(" ")){
-      wordLevDists.push(levenshtein(word.toLowerCase(), this.query));
-    }
     return Math.min(
-      levenshtein(eventObj.event.toLowerCase(), this.query),
-      levenshtein(eventObj.awayTeam.toLowerCase(), this.query),
-      levenshtein(eventObj.homeTeam.toLowerCase(), this.query),
-      ...wordLevDists
+      levenshtein(eventObj.awayTeam.toLowerCase(), this.query.team1),
+      levenshtein(eventObj.homeTeam.toLowerCase(), this.query.team1),
+      levenshtein(eventObj.awayTeam.toLowerCase(), this.query.team2),
+      levenshtein(eventObj.homeTeam.toLowerCase(), this.query.team2),
     );
   }
   /**
@@ -127,7 +152,17 @@ export default function Search(props) {
     setIsLoading(true);
     const data = new FormData(event.currentTarget);
     let query = data.get("query");
-    let currQuerySorter = new LevenshteinSorter(query);
+    let payload = {
+        model: "mistral-small-2409",
+        max_tokens: RESP_MAX_TOKENS,
+        messages: [{
+            role: "user",
+            content: PROMPT + query
+        }]
+    };
+    let resp = await axios.post(LLM_URL, payload, {headers: LLM_AUTH});
+    let userBet = JSON.parse(resp.data.choices[0].message.content);
+    let currQuerySorter = new LevenshteinSorter(userBet);
     let bindedSorter = currQuerySorter.sort.bind(currQuerySorter);
     try{
       let apiEvents = await getEvents();
@@ -139,8 +174,10 @@ export default function Search(props) {
         setErrmsg("We're sorry, but we do not have any games available for betting at this time.");
       }
     } catch(err){
+      console.error(err);
       setErrmsg("We're sorry, but there is an issue on our end with getting our games. Please contact us and we will fix it as soon as possible.");
     }
+      
     setIsLoading(false);
   };
   return (
@@ -154,7 +191,7 @@ export default function Search(props) {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            What soccer game will you bet on?
+            What's your bet? 
           </Typography>
           <Box
             component="form"
@@ -171,7 +208,7 @@ export default function Search(props) {
               <TextField
                 id="query"
                 name="query"
-                placeholder="Find a soccer game"
+                placeholder="Bet 10 USDC on Real Madrid to beat Barcelona"
                 autoFocus
                 required
                 fullWidth
@@ -191,11 +228,7 @@ export default function Search(props) {
         </Card>
       </SearchContainer>
       <Card variant="outlined">
-        {
-          events.slice(0, TOP_RESULTS_TO_SHOW).map(
-            (eventObj, index) => (<GameAccordion key={index} eventObj={eventObj}/>)
-          )
-        }
+        
       </Card>
     </AppTheme>
   );
