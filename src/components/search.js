@@ -12,7 +12,8 @@ import { styled } from '@mui/material/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import AppTheme from './styling/AppTheme';
-import levenshtein from "./utils/levenshtein";
+import LevenshteinSorter from './utils/sorter';
+import Bet from './bet';
 
 const URL = "https://prod.events.api.betdex.com/events";
 const LLM_URL = "https://api.mistral.ai/v1/chat/completions";
@@ -25,7 +26,6 @@ const PROMPT = `Based on the user's query, give me a properly formatted JSON obj
   I will call JSON.parse() on the entire response so do not respond with anything else besides the JSON object.
   Here is the user's query: `;
 const RESP_MAX_TOKENS = 100;
-const EVENTS_TO_DISPLAY = 1;
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -100,53 +100,11 @@ async function getEvents(){
   return output;
 }
 
-class LevenshteinSorter{
-  /**
-   * 
-   * @param {object} query contains team1 and team2, all lowercase
-   */
-  constructor(query){
-    this.query = query;
-  }
-  /**
-   * picksk closest levenshtein distance from away team name, home team name, and event name
-   * and also min of each individual word (make sure shenhua = Shanghai Shenhua)
-   * @param {Object} eventObj event object that must have attributes .awayTeam, .homeTeam, and .event
-   * @returns number
-   */
-  minLevDist(eventObj){
-    return Math.min(
-      levenshtein(eventObj.awayTeam.toLowerCase(), this.query.team1),
-      levenshtein(eventObj.homeTeam.toLowerCase(), this.query.team1),
-      levenshtein(eventObj.awayTeam.toLowerCase(), this.query.team2),
-      levenshtein(eventObj.homeTeam.toLowerCase(), this.query.team2),
-    );
-  }
-  /**
-   * for use in sorting an array of event objects from most to least similar to query
-   * @param {Object} eventObjA must have .awayTeam and .homeTeam and .event attrributes
-   * @param {Object} eventObjB 
-   * @returns number, negative if A goes in front, positive if B
-   */
-  sort(eventObjA, eventObjB){
-    let levA = this.minLevDist(eventObjA);
-    let levB = this.minLevDist(eventObjB);
-    if(levA < levB){
-      return -1;
-    }
-    else if(levA > levB){
-      return 1;
-    }
-    else{
-      return 0;
-    }
-  }
-}
-
 export default function Search(props) {
   const setErrmsg = props.setErrmsg;
   const [isLoading, setIsLoading] = React.useState(false);
   const [events, setEvents] = React.useState([]);
+  const [userBet, setUserBet] = React.useState({});
   const handleSubmit = async (event) => {
     event.preventDefault();  // stop default refresh
     setIsLoading(true);
@@ -161,14 +119,18 @@ export default function Search(props) {
         }]
     };
     let resp = await axios.post(LLM_URL, payload, {headers: LLM_AUTH});
-    let userBet = JSON.parse(resp.data.choices[0].message.content);
-    let currQuerySorter = new LevenshteinSorter(userBet);
+    let rawUserBet = resp.data.choices[0].message.content;
+    // sometimes mistral doesnt listen and still gives it in the format for web view
+    let cleanedUserBet = rawUserBet.replace("```json", "").replace("```", "");
+    let currUserBet = JSON.parse(cleanedUserBet);
+    let currQuerySorter = new LevenshteinSorter(currUserBet);
     let bindedSorter = currQuerySorter.sort.bind(currQuerySorter);
     try{
       let apiEvents = await getEvents();
       apiEvents.sort(bindedSorter);
       if(apiEvents.length > 0){
         setEvents(apiEvents);
+        setUserBet(currUserBet);
       }
       else{
         setErrmsg("We're sorry, but we do not have any games available for betting at this time.");
@@ -227,8 +189,14 @@ export default function Search(props) {
           {isLoading ? (<LinearProgress />) : (<></>)}
         </Card>
       </SearchContainer>
-      <Card variant="outlined">
-        
+      <Card sx={{ 
+        maxWidth: 400,
+        margin: 'auto',
+        bgcolor: 'background.paper',
+        boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
+        borderRadius: 3,
+      }}>
+        {events.length == 0 ? (<></>) : (<Bet events={events} userBet={userBet}/>)}
       </Card>
     </AppTheme>
   );

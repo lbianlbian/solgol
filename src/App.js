@@ -6,11 +6,13 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { Paper } from '@mui/material';
 import Alert from '@mui/material/Alert';
+import { Buffer } from 'buffer';
 
 import Search from './components/search';
 import TopBar from './components/topbar';
 import './App.css';
 
+window.Buffer = Buffer;
 // Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -20,7 +22,9 @@ export const App = () => {
   const network = WalletAdapterNetwork.Mainnet;
 
   // You can also provide a custom RPC endpoint.
-  const endpoint = useMemo(() => "https://mainnet.helius-rpc.com/?api-key=2be97c7b-0edf-4b14-9a19-236bc6c87135", [network]);
+  // helius endpoints fail on getProgramAccounts
+  // const endpoint = useMemo(() => "https://mainnet.helius-rpc.com/?api-key=2be97c7b-0edf-4b14-9a19-236bc6c87135", [network]);
+  const endpoint = useMemo(() => "https://spring-frosty-snowflake.solana-mainnet.quiknode.pro/5584f3ace79637af8f83a6f135554af9e0f0ffca", [network]);
 
   const wallets = useMemo(
       () => [],  // empty array means only show wallets that user has installed

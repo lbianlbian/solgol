@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 const TWITTER_URL = "https://twitter.com/purebet_io";
 const DISCORD_URL = "https://discord.gg/22tr2FYAh9";
-const EMAIL = "mailto:jupuloa@gmail.com";
+const EMAIL = "mailto:jupaloa@gmail.com";
 
 function TopBar() {
 
@@ -63,7 +63,7 @@ function TopBar() {
               textDecoration: 'none',
             }}
           >
-            Simple Purebet
+            SolGol
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -94,9 +94,6 @@ function TopBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              <MenuItem key="pendingBets" onClick={handleCloseNavMenu}>
-                <Typography sx={{ textAlign: 'center' }}>Pending Bets </Typography>
-              </MenuItem>
               <MenuItem key="discord" onClick={openDiscord}>
                 <Typography sx={{ textAlign: 'center' }}>Discord </Typography>
               </MenuItem>
@@ -124,16 +121,10 @@ function TopBar() {
               textDecoration: 'none',
             }}
           >
-            Simple Purebet
+            SolGol
           </Typography>
           {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              key="pendingBetsDesktop"
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Pending Bets
-            </Button>
             <Button
               key="discordDesktop"
               sx={{ my: 2, color: 'white', display: 'block' }}
