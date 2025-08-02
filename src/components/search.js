@@ -19,7 +19,7 @@ const URL = "https://prod.events.api.betdex.com/events";
 const LLM_URL = "https://api.mistral.ai/v1/chat/completions";
 const LLM_AUTH = {Authorization: "Bearer ut3fvNH5z4BBiAq88V07cMAGNLXos48P"};
 const PROMPT = `Based on the user's query, give me a properly formatted JSON object with attributes
-  stake (pointing to user's stake)
+  stake (a number, ignore any currencies)
   team1 (all lowercase, one of the teams in the game the user wants to bet on)
   team2 (all lowercase, the other team in this game)
   bettingTeam (all lowercase, the team that user is betting on, could also be 'draw')
@@ -153,7 +153,7 @@ export default function Search(props) {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            What's your bet? 
+            What's your bet? (Amount & Team)
           </Typography>
           <Box
             component="form"
@@ -170,7 +170,7 @@ export default function Search(props) {
               <TextField
                 id="query"
                 name="query"
-                placeholder="Bet 10 USDC on Real Madrid to beat Barcelona"
+                placeholder="Ex: I'll bet 10 on Man Utd to beat Arsenal"
                 autoFocus
                 required
                 fullWidth
