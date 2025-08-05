@@ -14,6 +14,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import AppTheme from './styling/AppTheme';
 import LevenshteinSorter from './utils/sorter';
 import Bet from './bet';
+import {exampleBet, question, seeBet} from "./utils/text";
 
 const URL = "https://prod.events.api.betdex.com/events";
 const LLM_URL = "https://api.mistral.ai/v1/chat/completions";
@@ -153,7 +154,7 @@ export default function Search(props) {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            What's your bet? (Amount & Team)
+            {question(props.language)}
           </Typography>
           <Box
             component="form"
@@ -170,7 +171,7 @@ export default function Search(props) {
               <TextField
                 id="query"
                 name="query"
-                placeholder="Ex: I'll bet 10 on Man Utd to beat Arsenal"
+                placeholder={exampleBet(props.language)}
                 autoFocus
                 required
                 fullWidth
@@ -183,7 +184,7 @@ export default function Search(props) {
               fullWidth
               variant="contained"
             >
-              Search
+              {seeBet(props.language)}
             </Button>
           </Box>
           {isLoading ? (<LinearProgress />) : (<></>)}
@@ -196,7 +197,7 @@ export default function Search(props) {
         boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
         borderRadius: 3,
       }}>
-        {events.length == 0 ? (<></>) : (<Bet events={events} userBet={userBet}/>)}
+        {events.length == 0 ? (<></>) : (<Bet events={events} userBet={userBet} language={props.language} />)}
       </Card>
     </AppTheme>
   );

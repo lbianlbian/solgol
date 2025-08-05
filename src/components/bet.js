@@ -3,21 +3,29 @@ import { PublicKey, Transaction } from '@solana/web3.js';
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import * as borsh from "borsh";
 import { useState, useEffect } from 'react';
-import React from 'react';
 import { Card, CardContent, Typography, Button, Stack } from '@mui/material';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'; 
 
 import levenshtein from "./utils/levenshtein";
 import {mktLiqSchema, filterFactory} from "./utils/monacoConfigs";
+import { LoseDescription, BetDescription, returnDescription, placeBet } from './utils/text';
 
 window.Buffer = Buffer;
 const EVENTS_TO_DISPLAY = 1;
 const programID = new PublicKey("monacoUXKtUi6vKsQwaLyxmXKSievfNWEcYXTgkbCih");
 
-export default function Bet({events, userBet}){
+/**
+ * 
+ * events: array of event object, each with attrs event, homeTeam, awayTeam, and mktPubkey
+ * userBet: object with attrs stake and bettingTeam
+ * language: english or spanish
+ * @returns confirmation of bet and button to place it
+ */
+export default function Bet({events, userBet, language}){
     const { connection } = useConnection();
     const { publicKey, sendTransaction, connected } = useWallet();
-    const [totalReturn, setTotalReturn] = useState("loading");
+    const [totalReturn, setTotalReturn] = useState(0);
+    const [userStake, setUserStake] = useState(1);
 /*
     async function placeBet(){
         let transaction = new Transaction();
@@ -77,7 +85,10 @@ export default function Bet({events, userBet}){
                 // liquiditiesFor actually means bets that have been placed for and are waiting for against bets to match
                 for (let liq of mktLiqAccData.liquiditiesAgainst) {
                     if (liq.outcome === outcomeIndex) {
-                        setTotalReturn(userBet.stake * liq.price);
+                        if(!isNaN(userBet.stake)){
+                          setUserStake(userBet.stake);
+                        }
+                        setTotalReturn(userStake * liq.price);
                         return;
                     }
                 }
@@ -91,7 +102,7 @@ export default function Bet({events, userBet}){
         <Stack spacing={2} alignItems="center">
 
           <Typography variant="body1" color="text.primary" textAlign="center">
-            I'll bet <strong>{userBet.stake}</strong> on <strong>{bettingTeam}</strong> in <strong>{events[0].event}</strong>.
+            <BetDescription stake={userStake} team={bettingTeam} event={events[0].event} language={language}/>
           </Typography>
 
           <Typography 
@@ -103,13 +114,11 @@ export default function Bet({events, userBet}){
                 textAlign: 'center'  
             }}
           >
-            {totalReturn === "unavailable"
-              ? "Potential return: Unavailable"
-              : `If ${bettingTeam} wins, I win a total of ${totalReturn}.`}
+            {returnDescription(language, bettingTeam, totalReturn)}
           </Typography>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            If <strong>{otherOption1}</strong> or <strong>{otherOption2}</strong> wins, my bet loses.
+            <LoseDescription language={language} otherOption1={otherOption1} otherOption2={otherOption2} />
           </Typography>
 
           <Button
@@ -129,7 +138,7 @@ export default function Bet({events, userBet}){
               }
             }}
           >
-            Place Bet!
+            {placeBet(language)}
           </Button>
         </Stack>
       </CardContent>

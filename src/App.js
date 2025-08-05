@@ -59,7 +59,7 @@ export const App = () => {
                   }}
                 >
                   <TopBar />
-                  <Search setErrmsg={setErrmsg}/>
+                  <Search setErrmsg={setErrmsg} language={'english'} />
                   {errmsg == "" ? 
                     (<></>) : 
                     (<Alert severity="error" variant="filled">{errmsg}</Alert>)
