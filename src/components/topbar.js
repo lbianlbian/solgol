@@ -17,7 +17,7 @@ const TWITTER_URL = "https://twitter.com/purebet_io";
 const DISCORD_URL = "https://discord.gg/22tr2FYAh9";
 const EMAIL = "mailto:jupaloa@gmail.com";
 
-function TopBar() {
+function TopBar({language, setLanguage}) {
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
 
@@ -37,6 +37,14 @@ function TopBar() {
   }
   function openEmail(){
     window.open(EMAIL);
+  }
+  function switchLanguage(){
+    if(language == "english"){
+      setLanguage("spanish");
+    }
+    else{
+      setLanguage("english");
+    }
   }
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -103,6 +111,11 @@ function TopBar() {
               <MenuItem key="email" onClick={openEmail}>
                 <Typography sx={{ textAlign: 'center' }}>Email </Typography>
               </MenuItem>
+              <MenuItem key="language" onClick={switchLanguage}>
+                <Typography sx={{ textAlign: 'center' }}>
+                  {language == "english" ? "Español" : "English"} 
+                </Typography>
+              </MenuItem>
             </Menu>
           </Box>
           {/* mobile title */}
@@ -145,6 +158,13 @@ function TopBar() {
               onClick={openEmail}
             >
               Email
+            </Button>
+            <Button
+              key="languageDesktop"
+              sx={{ my: 2, color: 'white', display: 'block' }}
+              onClick={switchLanguage}
+            >
+              {language == "english" ? "Español" : "English"} 
             </Button>
           </Box>
           <WalletMultiButton style={walletStyle}/>

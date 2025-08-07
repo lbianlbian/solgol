@@ -45,6 +45,7 @@ export const App = () => {
   );
 
   const [errmsg, setErrmsg] = React.useState("");
+  const [language, setLanguage] = React.useState("english");
 
   return (
     <ThemeProvider theme={theme}>
@@ -58,8 +59,8 @@ export const App = () => {
                       flexDirection: 'column',
                   }}
                 >
-                  <TopBar />
-                  <Search setErrmsg={setErrmsg} language={'english'} />
+                  <TopBar setLanguage={setLanguage} language={language}/>
+                  <Search setErrmsg={setErrmsg} language={language} />
                   {errmsg == "" ? 
                     (<></>) : 
                     (<Alert severity="error" variant="filled">{errmsg}</Alert>)

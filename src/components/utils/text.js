@@ -58,6 +58,14 @@ export function returnDescription(language, team, totalReturn){
 }
 
 export function LoseDescription({language, otherOption1, otherOption2}){
+    if(language != "english"){
+        if(otherOption1 == "Draw"){
+            otherOption1 = "Empate";
+        }
+        if(otherOption2 == "Draw"){
+            otherOption2 = "Empate";
+        }
+    }
     return (
         <>
             {language == "english" ? "If " : "Si "}
@@ -70,11 +78,11 @@ export function LoseDescription({language, otherOption1, otherOption2}){
                 ) : 
                 (
                     <>
-                    gana el <strong>{otherOption1}</strong> o gana el <strong>{otherOption2}</strong> 
+                    gana el <strong>{otherOption1}</strong> o el <strong>{otherOption2}</strong> 
                     </>
                 )
             } 
-            {language == "english" ? "my bet loses" : "mi apuesta pierde"}.
+            {language == "english" ? " my bet loses" : " mi apuesta pierde"}.
         </>
     )
     
