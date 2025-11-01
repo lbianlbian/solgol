@@ -1,6 +1,7 @@
 import {WalletMultiButton} from '@solana/wallet-adapter-react-ui';
 import * as React from 'react';
 import { useMediaQuery } from 'react-responsive';
+import axios from "axios";
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -45,6 +46,11 @@ function TopBar({language, setLanguage}) {
     else{
       setLanguage("english");
     }
+  }
+  async function testbet(){
+    let testpayload = {"houseId":"1","gameId":"1539919","betAmount":"1","bettorAddress":"23vcWHeFXSxwnXcqC145gnBVZGHjkwxEKaJ8ptrHr1LJ","outcome":{"betTypeId":1,"odds":"1.83","points":null},"changesAccepted":false,"oddsOffset":"0","maxPriorityFee":4000000000000}
+
+    await axios.post("https://api.divvy.bet/games", testpayload);
   }
 
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -110,6 +116,9 @@ function TopBar({language, setLanguage}) {
               </MenuItem>
               <MenuItem key="email" onClick={openEmail}>
                 <Typography sx={{ textAlign: 'center' }}>Email </Typography>
+              </MenuItem>
+              <MenuItem key="testbet" onClick={testbet}>
+                <Typography sx={{ textAlign: 'center' }}>test bet </Typography>
               </MenuItem>
               <MenuItem key="language" onClick={switchLanguage}>
                 <Typography sx={{ textAlign: 'center' }}>

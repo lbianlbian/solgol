@@ -12,21 +12,10 @@ import { styled } from '@mui/material/styles';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import AppTheme from './styling/AppTheme';
-import LevenshteinSorter from './utils/sorter';
 import Bet from './bet';
 import {exampleBet, question, seeBet} from "./utils/text";
 
-const URL = "https://prod.events.api.betdex.com/events";
-const LLM_URL = "https://api.mistral.ai/v1/chat/completions";
-const LLM_AUTH = {Authorization: "Bearer ut3fvNH5z4BBiAq88V07cMAGNLXos48P"};
-const PROMPT = `Based on the user's query, give me a properly formatted JSON object with attributes
-  stake (a number, ignore any currencies)
-  team1 (all lowercase, one of the teams in the game the user wants to bet on)
-  team2 (all lowercase, the other team in this game)
-  bettingTeam (all lowercase, the team that user is betting on, could also be 'draw')
-  I will call JSON.parse() on the entire response so do not respond with anything else besides the JSON object.
-  Here is the user's query: `;
-const RESP_MAX_TOKENS = 100;
+const URL = "https://j7k0y6mnxd.execute-api.ca-central-1.amazonaws.com/betLambda"
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -71,67 +60,21 @@ const SearchContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-/**
- * calls betdex api for soccer events
- * @returns array of event objects, each with event, homeTeam, awayTeam, and mktPubkey
- */
-async function getEvents(){
-  let resp = await axios.get(URL);
-  let output = [];
-  for(let sport of resp.data.eventCategories){
-    if(sport.id != "FOOTBALL"){
-      continue;
-    }
-    for(let league of sport.eventGroup){
-      for(let event of league.events){
-        let outputObj = {
-          event: event.eventName,
-          homeTeam: event.participants[0].name,
-          awayTeam: event.participants[1].name
-        };
-        for(let market of event.markets){
-          if(market.marketName == 'Full Time Result'){
-            outputObj.mktPubkey = market.marketAccount;
-          }
-        }
-        output.push(outputObj);
-      }
-    }
-  }
-  return output;
-}
-
 export default function Search(props) {
   const setErrmsg = props.setErrmsg;
   const [isLoading, setIsLoading] = React.useState(false);
-  const [events, setEvents] = React.useState([]);
-  const [userBet, setUserBet] = React.useState({});
+  const [userBet, setUserBet] = React.useState({there_are_games: false});
   const handleSubmit = async (event) => {
     event.preventDefault();  // stop default refresh
     setIsLoading(true);
     const data = new FormData(event.currentTarget);
     let query = data.get("query");
-    let payload = {
-        model: "mistral-small-2409",
-        max_tokens: RESP_MAX_TOKENS,
-        messages: [{
-            role: "user",
-            content: PROMPT + query
-        }]
-    };
-    let resp = await axios.post(LLM_URL, payload, {headers: LLM_AUTH});
-    let rawUserBet = resp.data.choices[0].message.content;
-    // sometimes mistral doesnt listen and still gives it in the format for web view
-    let cleanedUserBet = rawUserBet.replace("```json", "").replace("```", "");
-    let currUserBet = JSON.parse(cleanedUserBet);
-    let currQuerySorter = new LevenshteinSorter(currUserBet);
-    let bindedSorter = currQuerySorter.sort.bind(currQuerySorter);
+    let payload = {query: query};
     try{
-      let apiEvents = await getEvents();
-      apiEvents.sort(bindedSorter);
-      if(apiEvents.length > 0){
-        setEvents(apiEvents);
-        setUserBet(currUserBet);
+      let betResp = await axios.post(URL, payload);
+      let bet = betResp.data.body;
+      if(bet.there_are_games){
+        setUserBet(bet);  // for some reason lambda gives the body attribute back with statusCode
       }
       else{
         setErrmsg("We're sorry, but we do not have any games available for betting at this time.");
@@ -197,7 +140,7 @@ export default function Search(props) {
         boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
         borderRadius: 3,
       }}>
-        {events.length == 0 ? (<></>) : (<Bet events={events} userBet={userBet} language={props.language} />)}
+        {userBet.there_are_games ? <Bet userBet={userBet} language={props.language} /> : <></>}
       </Card>
     </AppTheme>
   );
