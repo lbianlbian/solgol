@@ -72,7 +72,7 @@ export default function Search(props) {
     let payload = {query: query};
     try{
       let betResp = await axios.post(URL, payload);
-      let bet = betResp.data.body;
+      let bet = betResp.data;
       if(bet.there_are_games){
         setUserBet(bet);  // for some reason lambda gives the body attribute back with statusCode
       }
