@@ -13,15 +13,25 @@ window.Buffer = Buffer;
 /**
  * 
  * userBet: object with attrs  
- *          "other_option_1"
-            "other_option_2"
-            "betting_team"
-            "tok_addr"
-            "stake"
-            "total_return"
-            "stake_was_lowered"
-            "event"
-            "start_time" # iso format string
+ * "there_are_games": 
+    "other_option_1":
+    "other_option_2": 
+    "betting_team": 
+    "tok_addr": 
+    "event": 
+    "airesp": 
+    "user_query": 
+    "numbers": {
+      "total_return": 
+        "stake": {
+            "was_increased": 
+            "was_decreased": 
+            "amount":  (amount user placed, not the amoutn to hedge)
+            "skim": (number in between 0 and 1)
+        },
+        "price": 
+    }
+    "start_time": game["endDate"]  # iso format string, eventStartDate in mkt obj is null
  * language: english or spanish
  * @returns confirmation of bet and button to place it
  */
@@ -54,7 +64,7 @@ export default function Bet({userBet, language}){
 
           <Typography variant="body1" color="text.primary" textAlign="center">
             <BetDescription 
-              stake={userBet.stake} 
+              stake={userBet.numbers.stake.amount} 
               team={userBet.betting_team} 
               event={userBet.event} 
               language={language}
@@ -65,7 +75,7 @@ export default function Bet({userBet, language}){
             variant="h6" 
             color={
               /* Polymarkets API likely won't have missing odds but keep this here in case that needs to be handled */
-              userBet.total_return === 'unavailable' ? 'error.main' : 'success.main'
+              userBet.numbers.total_return === 'unavailable' ? 'error.main' : 'success.main'
             } 
             sx={{ 
                 fontWeight: 600, 
@@ -73,7 +83,7 @@ export default function Bet({userBet, language}){
                 textAlign: 'center'  
             }}
           >
-            {returnDescription(language, userBet.betting_team, userBet.total_return)}
+            {returnDescription(language, userBet.betting_team, userBet.numbers.total_return)}
           </Typography>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
