@@ -97,3 +97,16 @@ export function placeBet(language){
     }
 }
 
+export function getStakeMessage(language, stakeWasRaised, stakeWasLowered) {
+  if (stakeWasRaised) {
+    return language === 'spanish'
+      ? "Nota: Su apuesta fue aumentada para cumplir con el mínimo permitido."
+      : "Note: Your stake was increased to meet the minimum allowed.";
+  }
+  if (stakeWasLowered) {
+    return language === 'spanish'
+      ? "Nota: Su apuesta fue reducida para cumplir con el máximo permitido."
+      : "Note: Your stake was lowered to meet the maximum allowed.";
+  }
+  return '';
+}
