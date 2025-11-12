@@ -11,7 +11,7 @@ import { LoseDescription, BetDescription, returnDescription, placeBet, getStakeM
 
 window.Buffer = Buffer;
 
-const RECORD_URL = "";
+const RECORD_URL = "https://j7k0y6mnxd.execute-api.ca-central-1.amazonaws.com/betRecordContainerSource";
 
 export default function Bet({ userBet, language }) {
   const { connection } = useConnection();
@@ -37,7 +37,7 @@ export default function Bet({ userBet, language }) {
 
   async function handleTelegramSubmit() {
     setProcessingBet(true);
-    //await processBet(telegramAddr);
+    await processBet(telegramAddr, "fill in txsig later");
     setProcessingBet(false);
     setShowTelegramPopup(false);
     setConfirmationOpen(true);
@@ -45,14 +45,14 @@ export default function Bet({ userBet, language }) {
 
 
   // Modified processBet to accept telegramAddr
-  async function processBet(telegramUsername) {
+  async function processBet(telegramUsername, txsig) {
     let payload = {
       bettor: {
         addr: publicKey.toBase58(),
         telegram: telegramUsername
       },
       bet: {
-        txsig: "fill in later",
+        txsig: txsig,
         team: userBet.betting_team,
         event_name: userBet.event,
         start_time: userBet.start_time,
