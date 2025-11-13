@@ -1,3 +1,5 @@
+fixing weird buffer issues: https://stackoverflow.com/questions/70714690/buffer-is-not-defined-in-react-vite
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

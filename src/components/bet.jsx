@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
+import {createTransferInstruction, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Button, Stack } from '@mui/material';
@@ -9,9 +10,10 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@m
 
 import { LoseDescription, BetDescription, returnDescription, placeBet, getStakeMessage } from './utils/text';
 
-window.Buffer = Buffer;
-
 const RECORD_URL = "https://j7k0y6mnxd.execute-api.ca-central-1.amazonaws.com/betRecordContainerSource";
+const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+const HOUSE_ATA = new PublicKey("G1g89Q3R98nGNMdPk1ZC6GMqwnMTEhybsDzX5NmzqwSx");
+const USDC_DECIMALS = 6;
 
 export default function Bet({ userBet, language }) {
   const { connection } = useConnection();
@@ -20,7 +22,6 @@ export default function Bet({ userBet, language }) {
   const [telegramAddr, setTelegramAddr] = useState('');
   const [processingBet, setProcessingBet] = useState(false);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
-
 
   // New state for stake change notice
   const stakeWasRaised = userBet.numbers.stake.was_increased;
@@ -35,16 +36,63 @@ export default function Bet({ userBet, language }) {
     setShowTelegramPopup(true);
   }
 
+  function round(num, dec){
+    return Math.round(num * 10**dec) / 10**dec;
+  }
+
+  async function onchainBet(){
+    console.log(TOKEN_2022_PROGRAM_ID.toBase58());
+    let sourceResp = await connection.getTokenAccountsByOwner(publicKey, {mint: USDC_MINT});
+    let source = sourceResp.value[0].pubkey;
+    let betInstr = createTransferInstruction(
+      source,
+      HOUSE_ATA,  // DESTINATION
+      publicKey,  // owner of the source
+      userBet.numbers.stake.amount * 10**USDC_DECIMALS,  // amount
+      [],  // multisigners, not applicable to this
+      TOKEN_PROGRAM_ID
+    );
+
+    let messageObj = {
+      bet: round(userBet.numbers.stake.amount, 2),
+      for: round(userBet.numbers.total_return, 2),
+      on: userBet.betting_team,
+      in: userBet.event,
+      at: userBet.start_time
+    };
+    let memoInstr = new TransactionInstruction({
+      keys: [{ pubkey: publicKey, isSigner: true, isWritable: true }],  // only need payer
+      data: Buffer.from(JSON.stringify(messageObj), "utf-8"),
+      programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+    });
+    
+    let transaction = new Transaction();
+    transaction.add(betInstr);
+    transaction.add(memoInstr);
+    const signature = await sendTransaction(transaction, connection);
+    try{
+      await connection.confirmTransaction(signature);
+      const status = await connection.getSignatureStatus(signature, {
+          searchTransactionHistory: true
+      });
+      if (status.value?.err) {
+          throw Error("tx was confirmed but was a failed tx");
+      }
+    } catch(err){
+      console.log("handle errors later");
+    }
+    return signature;
+  }
+
   async function handleTelegramSubmit() {
     setProcessingBet(true);
-    await processBet(telegramAddr, "fill in txsig later");
+    let txsig = await onchainBet();
+    await processBet(telegramAddr, txsig);
     setProcessingBet(false);
     setShowTelegramPopup(false);
     setConfirmationOpen(true);
   }
 
-
-  // Modified processBet to accept telegramAddr
   async function processBet(telegramUsername, txsig) {
     let payload = {
       bettor: {

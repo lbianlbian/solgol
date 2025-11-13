@@ -23,8 +23,7 @@ export const App = () => {
 
   // You can also provide a custom RPC endpoint.
   // helius endpoints fail on getProgramAccounts
-  // const endpoint = useMemo(() => "https://mainnet.helius-rpc.com/?api-key=2be97c7b-0edf-4b14-9a19-236bc6c87135", [network]);
-  const endpoint = useMemo(() => "https://spring-frosty-snowflake.solana-mainnet.quiknode.pro/5584f3ace79637af8f83a6f135554af9e0f0ffca", [network]);
+  const endpoint = useMemo(() => "https://mainnet.helius-rpc.com/?api-key=2be97c7b-0edf-4b14-9a19-236bc6c87135", [network]);
 
   const wallets = useMemo(
       () => [],  // empty array means only show wallets that user has installed
