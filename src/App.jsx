@@ -43,7 +43,7 @@ export const App = () => {
     [prefersDarkMode],
   );
 
-  const [errmsg, setErrmsg] = React.useState("");
+  const [msg, setMsg] = React.useState({severity: "init"});  // attributes of severity and message
   const [language, setLanguage] = React.useState("english");
 
   return (
@@ -59,10 +59,10 @@ export const App = () => {
                   }}
                 >
                   <TopBar setLanguage={setLanguage} language={language}/>
-                  <Search setErrmsg={setErrmsg} language={language} />
-                  {errmsg == "" ? 
+                  <Search setMsg={setMsg} language={language} />
+                  {msg.severity == "init" ? 
                     (<></>) : 
-                    (<Alert severity="error" variant="filled">{errmsg}</Alert>)
+                    (<Alert severity={msg.severity} variant="filled">{msg.message}</Alert>)
                   }
                 </Paper>
               </WalletModalProvider>

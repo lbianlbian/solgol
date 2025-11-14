@@ -61,7 +61,7 @@ const SearchContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function Search(props) {
-  const setErrmsg = props.setErrmsg;
+  const setMsg = props.setMsg;
   const [isLoading, setIsLoading] = React.useState(false);
   const [userBet, setUserBet] = React.useState({there_are_games: false});
   const handleSubmit = async (event) => {
@@ -77,11 +77,21 @@ export default function Search(props) {
         setUserBet(bet);  // for some reason lambda gives the body attribute back with statusCode
       }
       else{
-        setErrmsg("We're sorry, but we do not have any games available for betting at this time.");
+        setMsg(
+          {
+            severity: "error",
+            message: "We're sorry, but we do not have any games available for betting at this time."
+          }
+        );
       }
     } catch(err){
       console.error(err);
-      setErrmsg("We're sorry, but there is an issue on our end with getting our games. Please contact us and we will fix it as soon as possible.");
+      setMsg(
+        {
+          severity: "error",
+          message: "We're sorry, but there is an issue on our end with getting our games. Please contact us and we will fix it as soon as possible."
+        }
+      );
     }
       
     setIsLoading(false);
@@ -140,7 +150,7 @@ export default function Search(props) {
         boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
         borderRadius: 3,
       }}>
-        {userBet.there_are_games ? <Bet userBet={userBet} language={props.language} /> : <></>}
+        {userBet.there_are_games ? <Bet userBet={userBet} language={props.language} setMsg={setMsg} /> : <></>}
       </Card>
     </AppTheme>
   );

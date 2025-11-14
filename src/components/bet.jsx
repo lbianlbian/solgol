@@ -1,12 +1,13 @@
 import { Buffer } from 'buffer';
 import { PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
-import {createTransferInstruction, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID} from "@solana/spl-token";
+import {createTransferInstruction, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Button, Stack } from '@mui/material';
 import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'; 
 import axios from "axios";
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 import { LoseDescription, BetDescription, returnDescription, placeBet, getStakeMessage } from './utils/text';
 
@@ -15,7 +16,7 @@ const USDC_MINT = new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 const HOUSE_ATA = new PublicKey("G1g89Q3R98nGNMdPk1ZC6GMqwnMTEhybsDzX5NmzqwSx");
 const USDC_DECIMALS = 6;
 
-export default function Bet({ userBet, language }) {
+export default function Bet({ userBet, language, setMsg }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction, connected } = useWallet();
   const [showTelegramPopup, setShowTelegramPopup] = useState(false);
@@ -41,14 +42,13 @@ export default function Bet({ userBet, language }) {
   }
 
   async function onchainBet(){
-    console.log(TOKEN_2022_PROGRAM_ID.toBase58());
     let sourceResp = await connection.getTokenAccountsByOwner(publicKey, {mint: USDC_MINT});
     let source = sourceResp.value[0].pubkey;
     let betInstr = createTransferInstruction(
       source,
       HOUSE_ATA,  // DESTINATION
       publicKey,  // owner of the source
-      userBet.numbers.stake.amount * 10**USDC_DECIMALS,  // amount
+      Math.round(userBet.numbers.stake.amount * 10**USDC_DECIMALS),  // amount
       [],  // multisigners, not applicable to this
       TOKEN_PROGRAM_ID
     );
@@ -87,6 +87,10 @@ export default function Bet({ userBet, language }) {
   async function handleTelegramSubmit() {
     setProcessingBet(true);
     let txsig = await onchainBet();
+    setMsg({
+      severity: "success",
+      message: `Bet ${txsig} placed!`
+    });
     await processBet(telegramAddr, txsig);
     setProcessingBet(false);
     setShowTelegramPopup(false);
@@ -220,21 +224,32 @@ export default function Bet({ userBet, language }) {
             >
               {language === 'spanish' ? "Cancelar" : "Cancel"}
             </Button>
-            <Button
-              onClick={handleTelegramSubmit}
-              variant="contained"
-              color="primary"
-              disabled={!telegramAddr || processingBet}
-              sx={{
-                fontWeight: 'bold',
-                bgcolor: '#00e5ff',
-                color: '#24263e',
-                letterSpacing: 1,
-                boxShadow: '0 0 10px 3px #00e5ff'
-              }}
-            >
-              {language === "spanish" ? "Enviar" : "Submit"}
-            </Button>
+            {processingBet ? (
+              <CircularProgress
+                size={28}
+                sx={{
+                  color: '#00e5ff',
+                  marginRight: 2,
+                }}
+              />
+            ) : (
+              <Button
+                onClick={handleTelegramSubmit}
+                variant="contained"
+                color="primary"
+                disabled={!telegramAddr || processingBet}
+                sx={{
+                  fontWeight: 'bold',
+                  bgcolor: '#00e5ff',
+                  color: '#24263e',
+                  letterSpacing: 1,
+                  fontFamily: '"Orbitron", monospace, sans-serif',
+                  boxShadow: '0 0 10px 3px #00e5ff'
+                }}
+              >
+                {language === "spanish" ? "Enviar" : "Submit"}
+              </Button>
+            )}
           </DialogActions>
         </Dialog>
         
