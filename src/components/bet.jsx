@@ -32,6 +32,8 @@ export default function Bet({ userBet, language, setMsg }) {
   function handlePlaceBetClick() {
     if (!connected) {
       alert("Please connect your wallet to place a bet.");
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
       return;
     }
     setShowTelegramPopup(true);
@@ -79,7 +81,7 @@ export default function Bet({ userBet, language, setMsg }) {
           throw Error("tx was confirmed but was a failed tx");
       }
     } catch(err){
-      console.log("handle errors later");
+      setMsg({severity: "error", message: `Transaction failed ${err}, please retry or contact us.`})
     }
     return signature;
   }
@@ -120,7 +122,11 @@ export default function Bet({ userBet, language, setMsg }) {
         price: userBet.numbers.price
       }
     };
-    await axios.post(RECORD_URL, payload);
+    try{
+      await axios.post(RECORD_URL, payload);
+    } catch(err){
+      setMsg({severity: "error", message: `Issue processing bet (${err}), please contact team.`});
+    }
   }
 
   return (
@@ -130,8 +136,12 @@ export default function Bet({ userBet, language, setMsg }) {
         {stakeMessage && (
           <Typography
             variant="body2"
-            color="info.main"
-            sx={{ fontFamily: '"Orbitron", monospace', textAlign: 'center' }}
+            sx={{
+              fontFamily: '"Orbitron", monospace',
+              textAlign: 'center',
+              color: '#32f2ff',
+              textShadow: '0 0 8px #00b8d4',
+            }}
           >
             {stakeMessage}
           </Typography>
@@ -142,17 +152,23 @@ export default function Bet({ userBet, language, setMsg }) {
             stake={userBet.numbers.stake.amount} 
             team={userBet.betting_team} 
             event={userBet.event} 
+            startTime={userBet.start_time}
             language={language}
           />
         </Typography>
 
-        <Typography 
-          variant="h6" 
-          color={userBet.numbers.total_return === 'unavailable' ? 'error.main' : 'success.main'}
+        <Typography
+          variant="h6"
           sx={{
             fontWeight: 600,
             fontFamily: '"Orbitron", monospace, sans-serif',
-            textAlign: 'center'
+            textAlign: 'center',
+            color: userBet.numbers.total_return === 'unavailable'
+              ? '#ff5c5c'  // slightly softer bright red
+              : '#9dff00', // bright lime green
+            textShadow: userBet.numbers.total_return === 'unavailable'
+              ? '0 0 8px #ff4b4b'
+              : '0 0 10px #b0ff47',
           }}
         >
           {returnDescription(language, userBet.betting_team, userBet.numbers.total_return)}
@@ -165,6 +181,23 @@ export default function Bet({ userBet, language, setMsg }) {
             otherOption2={userBet.other_option_2}
           />
         </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            fontFamily: '"Orbitron", monospace',
+            color: (theme) => theme.palette.mode === 'dark' ? '#7ef9ff99' : '#2196f399',
+            textAlign: 'center',
+            letterSpacing: '0.1em',
+            userSelect: 'none',
+            textShadow: '0 0 4px #00bcd499',
+            mt: 1,
+            mb: 2,
+          }}
+        >
+          Your bet is based on the first 90 minutes only — no extra time or overtime.
+        </Typography>
+
 
         <Button
           variant="contained"
@@ -315,7 +348,6 @@ export default function Bet({ userBet, language, setMsg }) {
                 </Button>
             </DialogContent>
         </Dialog>
-
       </Stack>
     </CardContent>
   );

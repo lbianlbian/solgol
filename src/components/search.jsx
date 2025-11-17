@@ -14,6 +14,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import AppTheme from './styling/AppTheme';
 import Bet from './bet';
 import {exampleBet, question, seeBet} from "./utils/text";
+import {getGame} from "./utils/prefillGame";
 
 const URL = "https://j7k0y6mnxd.execute-api.ca-central-1.amazonaws.com/betLambda"
 
@@ -64,6 +65,15 @@ export default function Search(props) {
   const setMsg = props.setMsg;
   const [isLoading, setIsLoading] = React.useState(false);
   const [userBet, setUserBet] = React.useState({there_are_games: false});
+  const [defaultBet, setDefaultBet] = React.useState(null);
+  React.useEffect(() => {
+    // This code runs only once after the initial render
+    async function callGetGame(){
+      setDefaultBet(await getGame());
+    }
+    callGetGame();
+  }, []); // Empty array ensures this runs just once
+
   const handleSubmit = async (event) => {
     event.preventDefault();  // stop default refresh
     setIsLoading(true);
@@ -71,18 +81,24 @@ export default function Search(props) {
     let query = data.get("query");
     let payload = {query: query};
     try{
-      let betResp = await axios.post(URL, payload);
-      let bet = betResp.data;
-      if(bet.there_are_games){
-        setUserBet(bet);  // for some reason lambda gives the body attribute back with statusCode
+      if(query == null || query == "" || query == undefined){
+        // use the default bet
+        setUserBet(defaultBet);
       }
       else{
-        setMsg(
-          {
-            severity: "error",
-            message: "We're sorry, but we do not have any games available for betting at this time."
-          }
-        );
+        let betResp = await axios.post(URL, payload);
+        let bet = betResp.data;
+        if(bet.there_are_games){
+          setUserBet(bet);  // for some reason lambda gives the body attribute back with statusCode
+        }
+        else{
+          setMsg(
+            {
+              severity: "error",
+              message: "We're sorry, but we do not have any games available for betting at this time."
+            }
+          );
+        }
       }
     } catch(err){
       console.error(err);
@@ -101,7 +117,26 @@ export default function Search(props) {
       <CssBaseline enableColorScheme />
       <SearchContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
-          <img src="purebetwordaswideaspossible.png" />
+          <img src="solgol_banner.jpg" />
+          <Typography
+            component="p"
+            sx={{
+              fontWeight: 'bold',
+              fontSize: '1.25rem',
+              letterSpacing: '0.05em',
+              textAlign: 'center',
+              userSelect: 'none',
+              marginY: 2,
+            }}
+          >
+            <Box component="span" sx={{ color: 'green' }}>Memecoins</Box>{' '}
+            -{' '}
+            <Box component="span" sx={{ color: 'red' }}>Rugpulls</Box>{' '}
+            ={' '}
+            <br />
+            <Box component="span" sx={{ color: 'gold' , fontSize: '1.75rem'}}>Sports Betting</Box>
+          </Typography>
+
           <Typography
             component="h1"
             variant="h4"
@@ -124,12 +159,19 @@ export default function Search(props) {
               <TextField
                 id="query"
                 name="query"
-                placeholder={exampleBet(props.language)}
+                placeholder={exampleBet(props.language, defaultBet)}
                 autoFocus
                 required
                 fullWidth
                 variant="outlined"
-                color={'primary'}
+                color="primary"
+                sx={{
+                  '& input::placeholder': {
+                    color: '#7fffd4',   // Aquamarine, bright but soft futuristic hue
+                    opacity: 0.7,       // Semi-transparent to signal placeholder status
+                    fontStyle: 'italic' // Optional: italic style for distinction
+                  }
+                }}
               />
             </FormControl>
             <Button
@@ -143,15 +185,19 @@ export default function Search(props) {
           {isLoading ? (<LinearProgress />) : (<></>)}
         </Card>
       </SearchContainer>
-      <Card sx={{ 
-        maxWidth: 400,
-        margin: 'auto',
-        bgcolor: 'background.paper',
-        boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
-        borderRadius: 3,
-      }}>
-        {userBet.there_are_games ? <Bet userBet={userBet} language={props.language} setMsg={setMsg} /> : <></>}
-      </Card>
+      {userBet?.there_are_games ?
+        <Card sx={{ 
+          maxWidth: 400,
+          margin: 'auto',
+          bgcolor: 'background.paper',
+          boxShadow: '0 0 15px 2px #00e5ff', // neon blue glow for futuristic vibe
+          borderRadius: 3,
+        }}>
+          <Bet userBet={userBet} language={props.language} setMsg={setMsg} />
+        </Card>
+        :
+        <> </>
+      }
     </AppTheme>
   );
 }

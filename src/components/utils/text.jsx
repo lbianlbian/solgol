@@ -7,12 +7,19 @@ export function question(language){
     }
 }
 
-export function exampleBet(language){
-    if(language == "english"){
-        return "Ex: I'll bet 10 on Man Utd to beat Arsenal";
+export function exampleBet(language, defaultBet){
+    let bettingTeam = "Man Utd";
+    let otherTeam = "Arsenal";
+    if(defaultBet != null){
+        bettingTeam = defaultBet.betting_team;  // in default bet, betting team is always home team
+        otherTeam = defaultBet.other_option_2;  // this is the away team
     }
+    if(language == "english"){
+        return `Ex: 5 on ${bettingTeam} to beat ${otherTeam}`;
+    }
+    // redo spanish transaltion later
     else{
-        return "Ej: Apuesto 10 a que el Arsenal le ganará al Chelsea";
+        return "Ej: 10 a que el Arsenal le ganará al Chelsea";
     }
 }
 
@@ -25,15 +32,17 @@ export function seeBet(language){
     }
 }
 
-export function BetDescription({language, stake, team, event}){ 
+export function BetDescription({language, stake, team, event, startTime}){ 
     return (
         <>
-            {language == "english" ? "I'll bet " : "Apuesto "}
-            <strong>{stake}</strong> 
+            {language == "english" ? "You'll bet " : "Apuestas "}
+            <strong>{stake.toFixed(2)} USDC </strong> 
             {language == "english" ? " on " : " al "}
             <strong>{team}</strong> 
             {language == "english" ? " in " : " en "} 
             <strong>{event}</strong>
+            {language == "english" ? " at " : "a"}
+            <strong>{(new Date(startTime)).toString()}</strong>
         </>    
     );
 }
@@ -44,7 +53,7 @@ export function returnDescription(language, team, totalReturn){
             return "Potential return: Unavailable";
         }
         else{
-            return `If ${team} wins, I win a total of ${totalReturn.toFixed(2)}`;
+            return `If ${team} wins, you win a total of ${totalReturn.toFixed(2)} USDC`;
         }
     }
     else{
@@ -52,7 +61,7 @@ export function returnDescription(language, team, totalReturn){
             return "Rendimiento potencial: no disponible";
         }
         else{
-            return `Si gana el ${team}, gano un total de ${totalReturn.toFixed(2).replace(".", ",")}`;
+            return `Si gana el ${team}, ganas un total de ${totalReturn.toFixed(2).replace(".", ",")} USDC`;
         }
     }
 }
@@ -73,7 +82,7 @@ export function LoseDescription({language, otherOption1, otherOption2}){
                 language == "english" ? 
                 (   
                     <>
-                    <strong>{otherOption1}</strong> or <strong>{otherOption2}</strong> wins 
+                    <strong>{otherOption1}</strong> or <strong>{otherOption2}</strong> wins
                     </>
                 ) : 
                 (
@@ -82,7 +91,7 @@ export function LoseDescription({language, otherOption1, otherOption2}){
                     </>
                 )
             } 
-            {language == "english" ? " my bet loses" : " mi apuesta pierde"}.
+            {language == "english" ? " your bet loses" : " tu apuesta pierde"}.
         </>
     )
     
@@ -93,7 +102,7 @@ export function placeBet(language){
         return "Place Bet!";
     }
     else{
-        return "¡Haz mi apuesta!";
+        return "¡Haz apuesta!";
     }
 }
 

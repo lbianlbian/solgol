@@ -1,7 +1,6 @@
 import {WalletMultiButton} from '@solana/wallet-adapter-react-ui';
 import * as React from 'react';
 import { useMediaQuery } from 'react-responsive';
-import axios from "axios";
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -14,9 +13,9 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 
-const TWITTER_URL = "https://twitter.com/purebet_io";
-const DISCORD_URL = "https://discord.gg/22tr2FYAh9";
-const EMAIL = "mailto:jupaloa@gmail.com";
+const TWITTER_URL = "https://twitter.com/solgol_en";
+const DISCORD_URL = "https://discord.gg/CANsQHPuGM";
+const EMAIL = "mailto:solgolteam@gmail.com";
 
 function TopBar({language, setLanguage}) {
 

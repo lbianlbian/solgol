@@ -62,7 +62,11 @@ export const App = () => {
                   <Search setMsg={setMsg} language={language} />
                   {msg.severity == "init" ? 
                     (<></>) : 
-                    (<Alert severity={msg.severity} variant="filled">{msg.message}</Alert>)
+                    (<Alert 
+                      severity={msg.severity} 
+                      variant="filled">{msg.message} 
+                      onClose={() => {setMsg({severity: "init"})}} 
+                    </Alert>)
                   }
                 </Paper>
               </WalletModalProvider>
