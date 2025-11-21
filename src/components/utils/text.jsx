@@ -8,12 +8,11 @@ export function question(language){
 }
 
 export function exampleBet(language, defaultBet){
-    let bettingTeam = "Man Utd";
-    let otherTeam = "Arsenal";
-    if(defaultBet != null){
-        bettingTeam = defaultBet.betting_team;  // in default bet, betting team is always home team
-        otherTeam = defaultBet.other_option_2;  // this is the away team
+    if(defaultBet == null){
+        return "Loading examle bet...";
     }
+    let bettingTeam = defaultBet.betting_team;  // in default bet, betting team is always home team
+    let otherTeam = defaultBet.other_option_2;  // this is the away team
     if(language == "english"){
         return `Ex: 5 on ${bettingTeam} to beat ${otherTeam}`;
     }
@@ -32,19 +31,43 @@ export function seeBet(language){
     }
 }
 
-export function BetDescription({language, stake, team, event, startTime}){ 
-    return (
-        <>
-            {language == "english" ? "You'll bet " : "Apuestas "}
-            <strong>{stake.toFixed(2)} USDC </strong> 
-            {language == "english" ? " on " : " al "}
-            <strong>{team}</strong> 
-            {language == "english" ? " in " : " en "} 
-            <strong>{event}</strong>
-            {language == "english" ? " at " : "a"}
-            <strong>{(new Date(startTime)).toString()}</strong>
-        </>    
-    );
+import { Typography, Box } from '@mui/material';
+
+export function BetDescription({ language, stake, team, event, startTime }) {
+  // Format date: month + date (no year), 24hr time without timezone/day of week
+  const formattedDate = new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(startTime));
+
+  return (
+     <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center', // centers horizontally
+        textAlign: 'center',  // centers text inside Typography
+        gap: 1,               // spacing between lines
+      }}
+    >
+      <Typography variant="body1" component="span">
+        {language === 'english' ? "You'll bet " : "Apuestas "}
+        <strong>{stake.toFixed(2)} USDC </strong>
+        {language === 'english' ? ' on ' : ' al '}
+        <strong>{team}</strong>
+      </Typography>
+
+      <Typography variant="body1" component="span">
+        {language === 'english' ? ' in ' : ' en '}
+        <strong>{event}</strong>
+        {language === 'english' ? ' at ' : ' a '}
+        <strong>{formattedDate}</strong>
+      </Typography>
+    </Box>
+  );
 }
 
 export function returnDescription(language, team, totalReturn){

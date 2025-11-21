@@ -147,7 +147,7 @@ export default function Bet({ userBet, language, setMsg }) {
           </Typography>
         )}
 
-        <Typography variant="body1" color="text.primary" textAlign="center">
+        {/*<Typography variant="body1" color="text.primary" textAlign="center">*/}
           <BetDescription 
             stake={userBet.numbers.stake.amount} 
             team={userBet.betting_team} 
@@ -155,7 +155,7 @@ export default function Bet({ userBet, language, setMsg }) {
             startTime={userBet.start_time}
             language={language}
           />
-        </Typography>
+        {/*</Typography>*/}
 
         <Typography
           variant="h6"
