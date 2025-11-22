@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyNIu3w4eO0r4zQkTohEwfBCuzpz4QV9oAszgDvznl9h4kjIFunZTd82gZ0YrC0UTqz/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwrW3Ti0J_i80RS-8sZyFnFaPvjck4wQLmfs56P7kU3Sxuk5V5Q_0IvAz8cLwG1fTmJ/exec";
+
 export async function getGame(){
     return (await axios.get(GAS_URL)).data;
 }

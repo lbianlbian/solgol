@@ -64,8 +64,10 @@ export const App = () => {
                     (<></>) : 
                     (<Alert 
                       severity={msg.severity} 
-                      variant="filled">{msg.message} 
+                      variant="filled"
                       onClose={() => {setMsg({severity: "init"})}} 
+                    >
+                      {msg.message} 
                     </Alert>)
                   }
                 </Paper>

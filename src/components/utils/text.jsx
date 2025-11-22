@@ -9,7 +9,7 @@ export function question(language){
 
 export function exampleBet(language, defaultBet){
     if(defaultBet == null){
-        return "Loading examle bet...";
+        return "Loading example bet...";
     }
     let bettingTeam = defaultBet.betting_team;  // in default bet, betting team is always home team
     let otherTeam = defaultBet.other_option_2;  // this is the away team
