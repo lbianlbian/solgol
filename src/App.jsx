@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -7,12 +7,16 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { Paper } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import { Buffer } from 'buffer';
+import axios from "axios";
 
 import Search from './components/search';
 import TopBar from './components/topbar';
 import './App.css';
 
 window.Buffer = Buffer;
+
+const ANALYTICS_URL = "https://script.google.com/macros/s/AKfycbyPrWZG-86GxUJVvYu99zueqLhH2lxBMvmqEy-ps4BI_Ld2HaLmy0tLrFjL9gX89gTi/exec";
+
 // Default styles that can be overridden by your app
 import * as idk from '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -42,6 +46,9 @@ export const App = () => {
       }),
     [prefersDarkMode],
   );
+
+  // analytics for website traffic
+  useEffect(() => {axios.get(ANALYTICS_URL)}, [])
 
   const [msg, setMsg] = React.useState({severity: "init"});  // attributes of severity and message
   const [language, setLanguage] = React.useState("english");
