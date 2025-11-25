@@ -1,0 +1,16 @@
+{
+    "name": "AAAA stop getting rugpulled - try solgol.com",
+    "symbol": "SOLGOL",
+    "description": "Sports betting is memecoins without rugpulls, and SolGol makes it easy. https://solgol.com",
+    "image": "https://solgol.com/solgol_square.jpg",
+    "attributes": [
+        {"trait_type": "link", "value": "solgol.com"}
+    ],
+    "properties": {
+        "files": [
+            {"uri": "solgol_square.jpg", "type": "image/jpeg"}
+        ],
+        "category": "token"
+    }
+}
+  
