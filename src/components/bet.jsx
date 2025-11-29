@@ -165,7 +165,7 @@ export default function Bet({ userBet, language, setMsg }) {
             textAlign: 'center',
             color: userBet.numbers.total_return === 'unavailable'
               ? '#ff5c5c'  // slightly softer bright red
-              : '#9dff00', // bright lime green
+              : '#66A800', // bright lime green
             textShadow: userBet.numbers.total_return === 'unavailable'
               ? '0 0 8px #ff4b4b'
               : '0 0 10px #b0ff47',

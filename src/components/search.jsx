@@ -167,7 +167,7 @@ export default function Search(props) {
                 color="primary"
                 sx={{
                   '& input::placeholder': {
-                    color: '#7fffd4',   // Aquamarine, bright but soft futuristic hue
+                    color: '#339999',   // Aquamarine, bright but soft futuristic hue
                     opacity: 0.7,       // Semi-transparent to signal placeholder status
                     fontStyle: 'italic' // Optional: italic style for distinction
                   }
